@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title></title>
+    <script type="text/javascript">
+
+    //An attempt to mimic the super() call in classical inheritance
+    //this.$super() when called from the child class will call the overridden super class method    
+    var Utilities = (function() {
+        function inject(sourceClass, targetClass) {
+            for (var i in sourceClass.prototype) {
+                if (i != "constructor") {
+                    if (!targetClass.prototype[i]) {
+                        targetClass.prototype[i] = sourceClass.prototype[i];
+                    } else if (typeof sourceClass.prototype[i] == "function") {
+                        targetClass.prototype[i] = addSuperClosure(sourceClass.prototype[i], targetClass.prototype[i]);
+                    }
+                }
+            }
+        }
+
+        function addSuperClosure(superFn, overriddenFn) {
+            return function() {
+                this.$super = superFn.bind(this);
+                return overriddenFn.apply(this, arguments);
+            };
+        }
+        return {
+            inject: inject
+        };
+
+    })();
+
+    var Vehicle = (function() {
+        function vehicle(type, number) {
+            this.type = type;
+            this.number = number;
+        }
+
+        vehicle.prototype = (function() {
+            function getType() {
+                return this.type;
+            }
+
+            function getNumber() {
+            	return this.number;
+            }
+
+            return {
+                getType: getType,
+                getNumber: getNumber
+            };
+
+        })();
+
+        return vehicle;
+
+    })();
+    Vehicle.prototype.constructor = Vehicle;
+
+    var Car = (function() {
+        function car(name, number) {
+            Vehicle.call(this, "car", number);
+            this.name = name;
+        }
+
+        car.prototype = (function() {
+
+            function getName() {
+                return this.name;
+            }
+
+            function getType() {
+                //Calls getType in the Vehicle class
+            	return this.$super();
+            }
+
+            function getNumber() {
+                //Calls getNumber in the Vehicle class
+            	return "KL-7-" + this.$super();
+            }
+
+            return {
+                getName: getName,
+                getType: getType,
+                getNumber: getNumber
+            };
+        })();
+
+        return car;
+    })();
+
+    Utilities.inject(Vehicle, Car);
+
+    Car.prototype.constructor = Car;
+
+    var vento = new Car("Vento", "BW 6143");
+    console.log(vento.getName());
+    console.log(vento.getType());
+    console.log(vento.getNumber());
+    console.log(vento.constructor);
+    </script>
+</head>
+
+<body>
+
+</body>
+
+</html>
