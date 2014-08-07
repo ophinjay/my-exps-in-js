@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title></title>
+</head>
+
+<body>
+    <script type="text/javascript">
+
+    //An object crawler that deep-crawls an object structure, finds the deepest object and creates a new object with all parents above 
+    //it to its prototype
+    //eg. In the below structure
+    //generatedObjects will have 2 properties obj2 and obj4(the 2 sub objects in the below structure that doesn't have further child 
+    //objects)
+    //the generated structure will be
+    // generatedObjects["obj2"] = {level3} --prototype--> {level2} --prototype--> {level1}
+    // generatedObjects["obj4"] = {level3, level4} --prototype--> {level3} --prototype--> {level2} --prototype--> {level1}
+    // Accessing generatedObjects["obj4"]["level1"] will navigate up the prototype tree and give its value
+    // Accessing generatedObjects["obj4"]["level3"] will give the overridden value of level3
+    var obj = {
+        level1: function() {
+            console.log("LEVEL 1");
+        },
+        obj1: {
+            level2: function() {
+                console.log("LEVEL 2");
+            },
+            obj2: {
+                level3: function() {
+                    console.log("LEVEL 3");
+                }
+            },
+            obj3: {
+                level3: function() {
+                    console.log("LEVEL 3");
+                },
+                obj4: {
+                    //Overriding level3 declared above
+                    level3: function() {
+                        console.log("OVERRIDDEN LEVEL 3");
+                    },
+                    level4: function() {
+                        console.log("LEVEL 4");
+                    }
+                }
+            }
+        }
+    };
+
+    var generatedObjects = {};
+
+    (function objectCrawler(obj, protoObj) {
+        var newObject = Object.create(protoObj);
+        var __noObjects__ = true;
+        for (var i in obj) {
+            if (typeof obj[i] == "object") {
+                __noObjects__ = false;
+                var generatedObj = objectCrawler(obj[i], newObject);
+                generatedObj["__noObjects__"] && (generatedObjects[i] = generatedObj);
+            } else {
+                Object.defineProperty(newObject, i, {
+                    "value": obj[i],
+                    "enumerable": true,
+                    "configurable": false,
+                    "writable": false
+                });
+            }
+        }
+        Object.defineProperty(newObject, "__noObjects__", {
+            "value": __noObjects__,
+            "enumerable": false,
+            "configurable": false,
+            "writable": false
+        });
+        return newObject;
+    })(obj, null);
+
+    for (var i in generatedObjects["obj4"]) {
+        generatedObjects["obj4"][i]();
+    }
+    console.log("------------------------------------");
+    generatedObjects["obj4"]["level3"]();
+    </script>
+</body>
+
+</html>
