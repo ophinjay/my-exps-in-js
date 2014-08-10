@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Timer demo</title>
+    <script src="timer.js" type="text/javascript" charset="utf-8" async defer></script>
+    <script type="text/javascript">
+    function init() {
+        Timer.init();
+        Timer.displayTime("clock");
+        var watchContainer = document.getElementById("watchContainer");
+        document.getElementById("addWatch").addEventListener("click", function() {
+        	var watchDiv = document.createElement("div");
+        	watchContainer.appendChild(watchDiv);
+        	StopWatch.create(watchDiv);
+        });
+    }
+    </script>
+</head>
+
+<body onload="init()">
+    <div id="clock">
+
+    </div>
+    <button id="addWatch">Add Stopwatch</button>
+    <div id="watchContainer">
+    	
+    </div>
+</body>
+
+</html>
