@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Worker</title>
+</head>
+<script type="text/javascript">
+var worker;
+
+function startWorking() {
+    worker = new Worker("worker.js");
+    worker.postMessage("start");
+    worker.addEventListener("message", function(eventObject) {
+        document.querySelector("#count").innerHTML = eventObject.data;
+    });
+}
+
+function stopWorking() {
+	worker.postMessage("stop");
+}
+
+</script>
+
+<body>
+<div id="count">
+	
+</div>
+<button onclick="startWorking()">Start</button>
+<button onclick="stopWorking()">Stop</button>
+</body>
+
+</html>
